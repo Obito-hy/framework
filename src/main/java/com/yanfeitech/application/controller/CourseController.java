@@ -80,13 +80,13 @@ public class CourseController {
 		return courseService.delete(course);
 	}
 
-//	// 根据课程id 查询课程的树形结构
-//	@RequestMapping(value = "/findByCourseId", method = RequestMethod.GET)
-//	public ResultUtil findByCourseId(String courseId) {
-//		CourseVO courseVO = new CourseVO();
-//		courseVO = courseService.findCourseByCourseId(courseId);
-//		return ResultUtil.ok(courseVO);
-//	}
+	// 根据课程id 查询课程的树形结构
+	@RequestMapping(value = "/findByCourseId", method = RequestMethod.GET)
+	public ResultUtil findByCourseId(String courseId) {
+		CourseVO courseVO = new CourseVO();
+		courseVO = courseService.findCourseByCourseId(courseId);
+		return ResultUtil.ok(courseVO);
+	}
 
 	@PostMapping(value = "/upLoadCourse")
 	public ResultUtil upLoadCourse(@RequestBody CourseVO courseVO) {

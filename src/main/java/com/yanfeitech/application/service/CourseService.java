@@ -49,7 +49,6 @@ public class CourseService {
 	}
 
 	public List<Course> findAll() {
-
 		List<Course> courses = courseDao.selectAll();
 		return courses;
 	}
@@ -82,16 +81,17 @@ public class CourseService {
 	}
 
 	public ResultUtil modify(CourseVO courseVO) {
-		if (judgment(courseVO).getStatus()!=200) {
-			return ResultUtil.fail("参数有误");
-		}
 		Course course = new Course();
 		BeanUtils.copyProperties(courseVO,course);
-		ResultUtil deleteResult = delete(course);
-		if (deleteResult.getStatus()!=200){
-			return deleteResult;
+		List<File> id = fileService.findId(course.getId());
+		for (File file : id) {
+			fileService.deleteById(file.getId());
 		}
-		ResultUtil saveResult = save(courseVO);
+		List<File> outLineFileList = getFileList(course.getId(), courseVO.getOutlineFileList(), "outlineDescription");
+		fileService.save(outLineFileList);
+		List<File> planFileList = getFileList(course.getId(), courseVO.getPlanFileList(), "planFileList");
+		fileService.save(planFileList);
+		ResultUtil saveResult = modify(courseVO);
 		return saveResult;
 	}
 
@@ -111,64 +111,63 @@ public class CourseService {
 		if (!StringUtils.equals(teacherIds,teacherIdes)){
 			return ResultUtil.fail("您没有权限");
 		}
-//		fileService.deleteById();
 		courseDao.delete(course.getId());
 		return  ResultUtil.ok() ;
 	}
 
-//	// 根据课程id获取课程的树形结构
-//	public CourseVO findCourseByCourseId(String courseId) {
-//		Course courseforvo = courseDao.get(courseId);
-//		CourseVO courseVO = new CourseVO();
-//		List<Unit> units = new ArrayList<>();
-//		List<UnitVO> unitVOs = new ArrayList<>();
-//		units = unitService.findListByCourseId(courseId);
-//		if (units.size() == 0) {
-//			return BeanUtil.copyProperties(courseforvo, CourseVO.class);
-//		}
-//		List<Chapter> chapters = new ArrayList<>();
-//		String unitId;
-//		StringBuilder unitIds = new StringBuilder();
-//		for (int i = 0; i < units.size(); i++) {
-//			unitId = units.get(i).getId();
-//			unitIds.append(unitId).append("'").append(",").append("'");
-//		}
-//		unitIds.deleteCharAt(unitIds.length() - 1);
-//		unitIds.deleteCharAt(unitIds.length() - 1);
-//		unitIds.deleteCharAt(unitIds.length() - 1);
-//		chapters = chapterService.findlistbyunitids(unitIds.toString());
-//		for (int i = 0; i < units.size(); i++) {
-//			UnitVO unitVO = new UnitVO();
-//			unitVO.setCourseId(units.get(i).getCourseId());
-//			unitVO.setId(units.get(i).getId());
-//			unitVO.setUnitName(units.get(i).getUnitName());
-//			unitVO.setUnitNo(units.get(i).getUnitNo());
-//			List<ChapterVO> chapterVOs = new ArrayList<>();
-//			for (int j = 0; j < chapters.size(); j++) {
-//				if (units.get(i).getId().equals(chapters.get(j).getUnitId())) {
-//					ChapterVO chapterVO = new ChapterVO();
-//					chapterVO.setChapterName(chapters.get(j).getChapterName());
-//					chapterVO.setChapterNo(chapters.get(j).getChapterNo());
-//					chapterVO.setId(chapters.get(j).getId());
-//					chapterVO.setUnitId(chapters.get(j).getUnitId());
-//					chapterVOs.add(chapterVO);
-//					unitVO.setChapterList(chapterVOs);
-//				}
-//			}
-//			unitVOs.add(unitVO);
-//		}
-//		courseVO.setCourseName(courseforvo.getCourseName());
-//		courseVO.setId(courseforvo.getId());
-//		courseVO.setTextbookVersion(courseforvo.getTextbookVersion());
-//		courseVO.setUnitList(unitVOs);
-//		return courseVO;
-//	}
+	// 根据课程id获取课程的树形结构
+	public CourseVO findCourseByCourseId(String courseId) {
+		Course courseforvo = courseDao.get(courseId);
+		CourseVO courseVO = new CourseVO();
+		List<Unit> units = new ArrayList<>();
+		List<UnitVO> unitVOs = new ArrayList<>();
+		units = unitService.findListByCourseId(courseId);
+		if (units.size() == 0) {
+			return BeanUtil.copyProperties(courseforvo, CourseVO.class);
+		}
+		List<Chapter> chapters = new ArrayList<>();
+		String unitId;
+		StringBuilder unitIds = new StringBuilder();
+		for (int i = 0; i < units.size(); i++) {
+			unitId = units.get(i).getId();
+			unitIds.append(unitId).append("'").append(",").append("'");
+		}
+		unitIds.deleteCharAt(unitIds.length() - 1);
+		unitIds.deleteCharAt(unitIds.length() - 1);
+		unitIds.deleteCharAt(unitIds.length() - 1);
+		chapters = chapterService.findlistbyunitids(unitIds.toString());
+		for (int i = 0; i < units.size(); i++) {
+			UnitVO unitVO = new UnitVO();
+			unitVO.setCourseId(units.get(i).getCourseId());
+			unitVO.setId(units.get(i).getId());
+			unitVO.setUnitName(units.get(i).getUnitName());
+			unitVO.setUnitNo(units.get(i).getUnitNo());
+			List<ChapterVO> chapterVOs = new ArrayList<>();
+			for (int j = 0; j < chapters.size(); j++) {
+				if (units.get(i).getId().equals(chapters.get(j).getUnitId())) {
+					ChapterVO chapterVO = new ChapterVO();
+					chapterVO.setChapterName(chapters.get(j).getChapterName());
+					chapterVO.setChapterNo(chapters.get(j).getChapterNo());
+					chapterVO.setId(chapters.get(j).getId());
+					chapterVO.setUnitId(chapters.get(j).getUnitId());
+					chapterVOs.add(chapterVO);
+					unitVO.setChapterList(chapterVOs);
+				}
+			}
+			unitVOs.add(unitVO);
+		}
+		courseVO.setCourseName(courseforvo.getCourseName());
+		courseVO.setId(courseforvo.getId());
+		courseVO.setTextbookVersion(courseforvo.getTextbookVersion());
+		courseVO.setUnitList(unitVOs);
+		return courseVO;
+	}
 
 	public ResultUtil<CourseVO> upLoadCourse(CourseVO courseVO) {
 		Course course=new Course();
 		String role = LoginUserUtil.getLoginUser().getRole();
-		if (!"ROLE_TEACHER".equals(role)){
-			return ResultUtil.fail("");
+		if ("ROLE_TEACHER".equals(role)){
+			return ResultUtil.fail("无权限");
 		}
 		String roleId = LoginUserUtil.getLoginUser().getId();
 		course.setTeacherId(roleId);
@@ -193,24 +192,6 @@ public class CourseService {
 		}
 		return outLineFileList;
 	}
-
-//	public ResultUtil<List<CourseVO>> studentByCourse(String studentId) {
-//		studentId= LoginUserUtil.getLoginUser().getId();
-//		String role=LoginUserUtil.getLoginUser().getRole();
-//		if (studentId==null){
-//			return ResultUtil.fail("学生不能为空");
-//		}
-//		List<CourseVO> courseVOS = courseDao.selectStudentCourse(studentId);
-//		return ResultUtil.ok(courseVOS);
-//	}
-//
-//	public ResultUtil<List<CourseVO>> teacherByCourse(String teacherId) {
-//		if (teacherId == null){
-//			return ResultUtil.fail("教师不能为空");
-//		}
-//		List<CourseVO> courseVOS =courseDao.selectTeacherCourse(teacherId);
-//		return ResultUtil.ok(courseVOS);
-//	}
 
 	public ResultUtil<List<CourseVO>> roleByCourse() {
 		User user =LoginUserUtil.getLoginUser();

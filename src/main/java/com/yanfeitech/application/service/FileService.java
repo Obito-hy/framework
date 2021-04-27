@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.yanfeitech.application.entity.Course;
@@ -101,4 +102,14 @@ public class FileService {
 	public void deleteById(String id) {
 		fileDao.deleteById(id);
 	}
+	public void delete(File file) {
+		fileDao.delete(file);
+	}
+	public List<File> findId(String AssicuateId) {
+
+		return fileDao.selectId(AssicuateId);
+	}
+
+
+
 }
