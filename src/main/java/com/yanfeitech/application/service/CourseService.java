@@ -187,7 +187,6 @@ public class CourseService {
 			for (File file : outLineFileList) {
 				file.setAssicuateName("course");
 				file.setAssicuateId(courseId);
-                System.out.println();
 				file.setAssicuateKey(key);
 			}
 		}
