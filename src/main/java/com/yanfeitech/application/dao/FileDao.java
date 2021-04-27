@@ -3,6 +3,7 @@ package com.yanfeitech.application.dao;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.yanfeitech.application.common.util.Conditions;
 import org.springframework.stereotype.Repository;
 
 import com.yanfeitech.application.common.page.PageResult;
@@ -56,8 +57,25 @@ public class FileDao extends BaseDao<File, String> {
 		updateBatch(files);
 	}
 
+	public void delete(File file) {
+		delete(file);
+	}
 	public void delete(String id) {
 		deleteById(id);
 	}
+
+	public List<File> selectId (String AssicuateId) {
+//		Conditions conditions = new Conditions(sql)
+//                .eq("sad.id", params.get("areaId"))
+//                .or()
+//                .append("sad.parent_area_id = " + params.get("areaId"))
+//                .orderBy("order by sad.id");
+		String sql ="SELECT id FROM file WHERE assicuate_name = \"course\" OR assicuate_key = \"plan_description\" OR assicuate_key = \"outline_description\" AND";
+		Conditions conditions = new Conditions(sql);
+		conditions.append("assicuate_id"+" "+"="+" "+"\""+AssicuateId+"\"");
+		List<File> listBySql = (List<File>) getListBySql(conditions.toString(), File.class);
+		return listBySql;
+	}
+
 
 }
