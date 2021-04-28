@@ -3,6 +3,7 @@ package com.yanfeitech.application.entity;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.Entity;
 import javax.persistence.Index;
@@ -18,6 +19,7 @@ import javax.persistence.Table;
 @Entity
 @Setter
 @Getter
+@ToString
 @Table(indexes = {@Index(columnList = "id")})
 public class SchoolClass extends BaseEntity{
 
