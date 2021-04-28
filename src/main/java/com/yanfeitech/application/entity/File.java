@@ -6,6 +6,7 @@ import javax.persistence.Table;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 /**
  * 
@@ -22,6 +23,7 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
+@ToString
 @Table(indexes = { @Index(columnList = "id") })
 public class File extends BaseEntity {
 	// 原文件名
